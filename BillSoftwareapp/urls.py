@@ -218,6 +218,14 @@ urlpatterns = [
     
     path('check_itmname',views.check_itmname,name='check_itmname'),
 
+
+    # Sales Report
+
+    path('purchase_report',views.purchase_report,name='purchase_report'),
+    path('sharePurchaseReportsToEmail',views.sharePurchaseReportsToEmail, name='sharePurchaseReportsToEmail'),
+
+
+
     #Adrian Purchase Report
     
     path('view_purchasereport/',views.view_purchasereport,name='view_purchasereport'),
