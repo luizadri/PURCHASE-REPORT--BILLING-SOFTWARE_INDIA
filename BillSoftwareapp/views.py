@@ -4202,15 +4202,28 @@ def purchase_report(request):
         staff = staff_details.objects.get(id=staff_id) 
         company_instance = company.objects.get(id=staff.company.id)
         invoices = PurchaseBill.objects.filter(company=company_instance)
+
+        paid = 0
+        for i in invoices:
+           paid = paid + i.grandtotal
+
         credit=purchasedebit.objects.filter(company=company_instance)
+
+        unpaid = 0
+        for j in credit:
+           unpaid = unpaid + float(j.grandtotal)
 
         if not invoices:
           context = {'staff':staff}
           return render(request,'purchasebillempty.html',context)
-    
+
+        total = paid + unpaid
         context = {'sales_invoices': invoices,
                    'credit':credit,
-                   "staff":staff}
+                   "staff":staff,
+                   'unpaid':unpaid,
+                   'paid':paid,
+                   'total':total}
 
         return render(request,'sales_report.html', context)
       
@@ -4269,7 +4282,7 @@ def sharePurchaseReportsToEmail(request):
         workbook.save(excelfile)
 
         # Compose email
-        mail_subject = f'Sales Reports - {date.today()}'
+        mail_subject = f'Purchase Reports - {date.today()}'
         message = f"Hi,\nPlease find the SALES REPORTS file attached.\n \n{email_message}\n--\nRegards,\n{company_instance.company_name}\n{company_instance.address}\n{company_instance.state} - {company_instance.country}\n{company_instance.contact}"
         email = EmailMessage(mail_subject, message, settings.EMAIL_HOST_USER, to=emails_list)
         print(staff.email)
