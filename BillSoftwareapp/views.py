@@ -4299,7 +4299,42 @@ def sharePurchaseReportsToEmail(request):
     return redirect('purchase_report')
 
 
+def salesreport_graph(request):
+    if request.user:
+        cmp = Company.objects.get(user = request.user.id)
+        current_year = datetime.now().year
 
+
+        monthly_sales_data = defaultdict(int)
+        for month in range(1, 13):
+            monthly_sales_data[month] = (
+                Sales.objects
+                .filter(date_month=month, date_year=current_year,cid=cmp)
+                .aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
+            )
+
+        # Retrieve yearly sales data
+        current_year = datetime.now().year
+        yearly_sales_data = defaultdict(int)
+        for year in range(2022, current_year + 1):
+            yearly_sales_data[year] = (
+                Sales.objects
+                .filter(date__year=year,cid=cmp)
+                .aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
+            )
+
+        # Prepare data for chart
+        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        monthly_labels = [f"{month_names[month - 1]} {current_year}" for month in range(1, 13)]
+        monthly_sales = [monthly_sales_data[month] for month in range(1, 13)]
+
+        yearly_labels = [str(year) for year in range(2014, current_year + 1)]
+        yearly_sales = [yearly_sales_data[year] for year in range(2014, current_year + 1)]
+
+        # Prepare data for chart
+        chart_data = {'monthly_labels': monthly_labels, 'monthly_sales': monthly_sales,
+                    'yearly_labels': yearly_labels, 'yearly_sales': yearly_sales}
+        return render(request, 'saleschart.html', {'chart_data': chart_data,'cmp':cmp,})
 
 
 
