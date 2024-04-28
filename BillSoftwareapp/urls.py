@@ -224,7 +224,7 @@ urlpatterns = [
     path('purchase_report',views.purchase_report,name='purchase_report'),
     path('sharePurchaseReportsToEmail',views.sharePurchaseReportsToEmail, name='sharePurchaseReportsToEmail'),
 
-
+    path('salesreport_graph',views.salesreport_graph,name='salesreport_graph'),
 
     #Adrian Purchase Report
     

@@ -1,4 +1,5 @@
 #Multiuserbillingindia
+
 from django.shortcuts import render,redirect
 from django.contrib.auth.models import User, auth
 from . models import *
@@ -4256,7 +4257,7 @@ def sharePurchaseReportsToEmail(request):
         worksheet.title = 'Purchase Reports'
 
         # Write headers
-        headers = ['#', 'Date', 'Invoice Number', 'Party Name', 'Transaction Type', 'Amount']
+        headers = ['#', 'Date', 'Invoice Number', 'Party Name', 'Type', 'Amount']
         for col_num, header in enumerate(headers, 1):
             worksheet.cell(row=1, column=col_num, value=header)
 
@@ -4283,7 +4284,7 @@ def sharePurchaseReportsToEmail(request):
 
         # Compose email
         mail_subject = f'Purchase Reports - {date.today()}'
-        message = f"Hi,\nPlease find the SALES REPORTS file attached.\n \n{email_message}\n--\nRegards,\n{company_instance.company_name}\n{company_instance.address}\n{company_instance.state} - {company_instance.country}\n{company_instance.contact}"
+        message = f"Hi,\nPlease find the Purchase Reports file attached.\n \n{email_message}\n--\nRegards,\n{company_instance.company_name}\n{company_instance.address}\n{company_instance.state} - {company_instance.country}\n{company_instance.contact}"
         email = EmailMessage(mail_subject, message, settings.EMAIL_HOST_USER, to=emails_list)
         print(staff.email)
 
@@ -4298,43 +4299,49 @@ def sharePurchaseReportsToEmail(request):
     
     return redirect('purchase_report')
 
+from collections import defaultdict
 
 def salesreport_graph(request):
-    if request.user:
-        cmp = Company.objects.get(user = request.user.id)
-        current_year = datetime.now().year
+    if 'staff_id' in request.session:
+        staff_id = request.session['staff_id']
+    else:
+        return redirect('/')
+    
+    staff = staff_details.objects.get(id=staff_id) 
+    cmp = company.objects.get(id=staff.company.id)
+    current_year = datetime.now().year
 
 
-        monthly_sales_data = defaultdict(int)
-        for month in range(1, 13):
-            monthly_sales_data[month] = (
-                Sales.objects
-                .filter(date_month=month, date_year=current_year,cid=cmp)
-                .aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
-            )
+    monthly_sales_data = defaultdict(int)
+    # for month in range(1, 13):
+    #     monthly_sales_data[month] = (
+    #         PurchaseBill.objects
+    #         .filter(date_month=month, date_year=current_year,cid=cmp)
+    #         .aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
+    #     )
 
-        # Retrieve yearly sales data
-        current_year = datetime.now().year
-        yearly_sales_data = defaultdict(int)
-        for year in range(2022, current_year + 1):
-            yearly_sales_data[year] = (
-                Sales.objects
-                .filter(date__year=year,cid=cmp)
-                .aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
-            )
+    # Retrieve yearly sales data
+    current_year = datetime.now().year
+    yearly_sales_data = defaultdict(int)
+    # for year in range(2022, current_year + 1):
+    #     yearly_sales_data[year] = (
+    #         PurchaseBill.objects
+    #         .filter(date__year=year,cid=cmp)
+    #         .aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
+    #     )
 
-        # Prepare data for chart
-        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        monthly_labels = [f"{month_names[month - 1]} {current_year}" for month in range(1, 13)]
-        monthly_sales = [monthly_sales_data[month] for month in range(1, 13)]
+    # Prepare data for chart
+    month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    monthly_labels = [f"{month_names[month - 1]} {current_year}" for month in range(1, 13)]
+    monthly_sales = [monthly_sales_data[month] for month in range(1, 13)]
 
-        yearly_labels = [str(year) for year in range(2014, current_year + 1)]
-        yearly_sales = [yearly_sales_data[year] for year in range(2014, current_year + 1)]
+    yearly_labels = [str(year) for year in range(2014, current_year + 1)]
+    yearly_sales = [yearly_sales_data[year] for year in range(2014, current_year + 1)]
 
-        # Prepare data for chart
-        chart_data = {'monthly_labels': monthly_labels, 'monthly_sales': monthly_sales,
-                    'yearly_labels': yearly_labels, 'yearly_sales': yearly_sales}
-        return render(request, 'saleschart.html', {'chart_data': chart_data,'cmp':cmp,})
+    # Prepare data for chart
+    chart_data = {'monthly_labels': monthly_labels, 'monthly_sales': monthly_sales,
+                'yearly_labels': yearly_labels, 'yearly_sales': yearly_sales}
+    return render(request, 'saleschart.html', {'chart_data': chart_data,'cmp':cmp, 'staff':staff})
 
 
 
