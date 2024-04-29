@@ -4226,7 +4226,7 @@ def purchase_report(request):
                    'paid':paid,
                    'total':total}
 
-        return render(request,'sales_report.html', context)
+        return render(request,'view_purchase_report.html', context)
       
 def sharePurchaseReportsToEmail(request):
     if 'staff_id' in request.session:
