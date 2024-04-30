@@ -4192,7 +4192,7 @@ def check_itmname(request):
     return JsonResponse({'exists':False})
 
 
-# Sales Report
+# Adrian Purchase Report
 
 def purchase_report(request):
         if 'staff_id' in request.session:
@@ -4301,7 +4301,7 @@ def sharePurchaseReportsToEmail(request):
 
 from collections import defaultdict
 
-def salesreport_graph(request):
+def purchase_graph(request):
     if 'staff_id' in request.session:
         staff_id = request.session['staff_id']
     else:
@@ -4313,22 +4313,22 @@ def salesreport_graph(request):
 
 
     monthly_sales_data = defaultdict(int)
-    # for month in range(1, 13):
-    #     monthly_sales_data[month] = (
-    #         PurchaseBill.objects
-    #         .filter(date_month=month, date_year=current_year,cid=cmp)
-    #         .aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
-    #     )
+    for month in range(1, 13):
+        monthly_sales_data[month] = (
+            PurchaseBill.objects
+            .filter(billdate__month=month, billdate__year=current_year,company=cmp)
+            .aggregate(total_sales=Sum('grandtotal'))['total_sales'] or 0
+        )
 
     # Retrieve yearly sales data
     current_year = datetime.now().year
     yearly_sales_data = defaultdict(int)
-    # for year in range(2022, current_year + 1):
-    #     yearly_sales_data[year] = (
-    #         PurchaseBill.objects
-    #         .filter(date__year=year,cid=cmp)
-    #         .aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
-    #     )
+    for year in range(2022, current_year + 1):
+        yearly_sales_data[year] = (
+            PurchaseBill.objects
+            .filter(billdate__year=year,company=cmp)
+            .aggregate(total_sales=Sum('grandtotal'))['total_sales'] or 0
+        )
 
     # Prepare data for chart
     month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -4341,24 +4341,5 @@ def salesreport_graph(request):
     # Prepare data for chart
     chart_data = {'monthly_labels': monthly_labels, 'monthly_sales': monthly_sales,
                 'yearly_labels': yearly_labels, 'yearly_sales': yearly_sales}
-    return render(request, 'saleschart.html', {'chart_data': chart_data,'cmp':cmp, 'staff':staff})
+    return render(request, 'purchase_graph.html', {'chart_data': chart_data,'cmp':cmp, 'staff':staff})
 
-
-
-
-# Adrian Purchase Report
-
-def view_purchasereport(request):
-    sid = request.session.get('staff_id')
-    staff =  staff_details.objects.get(id=sid)
-    cmp = company.objects.get(id=staff.company.id)
-    pbill = PurchaseBill.objects.filter(company=cmp)
-    
-    if not pbill:
-      context = {'staff':staff}
-      return render(request,'purchasebillempty.html',context)
-    
-    context = {'staff':staff,
-               'pbill':pbill,
-               'cmp':cmp}
-    return render(request,'view_purchase_report.html',context)

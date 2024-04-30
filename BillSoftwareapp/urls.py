@@ -219,16 +219,14 @@ urlpatterns = [
     path('check_itmname',views.check_itmname,name='check_itmname'),
 
 
-    # Sales Report
+    #Adrian Purchase Report
 
     path('purchase_report',views.purchase_report,name='purchase_report'),
     path('sharePurchaseReportsToEmail',views.sharePurchaseReportsToEmail, name='sharePurchaseReportsToEmail'),
+    path('purchase_graph',views.purchase_graph,name='purchase_graph'),
 
-    path('salesreport_graph',views.salesreport_graph,name='salesreport_graph'),
-
-    #Adrian Purchase Report
     
-    path('view_purchasereport/',views.view_purchasereport,name='view_purchasereport'),
+
 
 
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
