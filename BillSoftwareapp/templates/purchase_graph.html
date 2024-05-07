@@ -51,10 +51,10 @@
                 var monthlyData = {
                     labels: {{ chart_data.monthly_labels|safe }},
                     datasets: [{
-                        label: 'Monthly Sales',
+                        label: 'Monthly Purchases',
                         data: {{ chart_data.monthly_sales|safe }},
-                        backgroundColor: '#218560',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgb(61,68,101)',
+                        borderColor: 'rgb(61,68,101)',
                         borderWidth: 1
                     }]
                 };
@@ -62,10 +62,10 @@
                 var yearlyData = {
                     labels: {{ chart_data.yearly_labels|safe }},
                     datasets: [{
-                        label: 'Yearly Sales',
+                        label: 'Yearly Purchases',
                         data: {{ chart_data.yearly_sales|safe }},
-                        backgroundColor: '#218560',
-                        borderColor: '#218560',
+                        backgroundColor: 'rgb(61,68,101)',
+                        borderColor: 'rgb(61,68,101)',
                         borderWidth: 1
                     }]
                 };
